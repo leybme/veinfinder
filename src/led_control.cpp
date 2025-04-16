@@ -4,6 +4,8 @@
 #include <EEPROM.h>
 #include <SPI.h>
 
+#define MAX_BRIGHTNESS 200
+#define MIN_BRIGHTNESS 1
 int currentPattern = 0;
 long force_time = 0;                                                                                       // Current LED pattern index
 int currentBrightness = 10;                                                                                // Current brightness level
@@ -78,9 +80,9 @@ void increaseBrightness()
     settingBrightness += 1; // Increase brightness by 1
 
     // if bright ness is 255, blink the led for 1 second
-    if (settingBrightness >= 255)
+    if (settingBrightness >= MAX_BRIGHTNESS)
     {
-        settingBrightness = 255; // Set brightness to 255
+        settingBrightness = MAX_BRIGHTNESS; // Set brightness to 255
         for (int i = 0; i < 5; i++)
         {
             ledcWriteChannel(LEDC_CHANNEL, 128); // Set brightness to 255
@@ -97,9 +99,9 @@ void decreaseBrightness()
     // uint8_t currentBrightness = ledcRead(LEDC_CHANNEL);
     settingBrightness -= 1; // Decrease brightness by 5
     // if bright ness is 0, blink the led for 1 second
-    if (settingBrightness <= 0)
+    if (settingBrightness <= MIN_BRIGHTNESS)
     {
-        settingBrightness = 0; // Set brightness to 0
+        settingBrightness = MIN_BRIGHTNESS; // Set brightness to 0
         for (int i = 0; i < 5; i++)
         {
             ledcWriteChannel(LEDC_CHANNEL, 128); // Set brightness to 255
