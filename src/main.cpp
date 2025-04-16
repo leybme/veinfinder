@@ -5,33 +5,34 @@
 #include "button_led.h"
 #include "pins.h"
 
-
+void printInfo(); // Forward declaration of printInfo function
 void setup() {
   pinMode(LATCH_PIN, OUTPUT);
   Serial.begin(115200);
   ledInit(); // Initialize LED control
   setupSensorTask(); // Initialize sensor task
   setupButtonTask(); // Initialize button task
+  printInfo(); // Print initial information
 }
 
 void loop() {
 
-  delay(1000); // Main loop does nothing, all work is done in tasks
-  Serial.println("Main loop running..."); // Print message to Serial Monitor
+  delay(5000); // Main loop does nothing, all work is done in tasks
   if (systemEnabled) {
-    // Check if the system is enabled
-    Serial.println("System is enabled.");
+    printInfo();
   } else {
-    // System is disabled
-    Serial.println("System is disabled.");
+    Serial.println("System: Disabled");
   }
-  Serial.println("Current Pattern: ");
-  Serial.println(currentPattern, BIN); // Print current pattern in binary format
-  Serial.println("Current Brightness: ");
-  Serial.println(currentBrightness); // Print current brightness level
-  Serial.println("Sensor Detected: ");
-  Serial.println(sensorDetected ? "Yes" : "No"); // Print sensor detection status
 }
 
-
-
+void printInfo()
+{
+  Serial.print("Status: Enabled | Pattern: ");
+  Serial.print(currentPattern, BIN);
+  Serial.print(" | Brightness: ");
+  Serial.print(currentBrightness);
+  Serial.print(" | Setting brn: ");
+  Serial.print(settingBrightness);
+  Serial.print(" | Sensor: ");
+  Serial.println(sensorDetected ? "Detected" : "None");
+}

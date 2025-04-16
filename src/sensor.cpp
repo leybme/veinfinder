@@ -6,6 +6,7 @@
 #include "led_control.h"
 
 bool sensorDetected = false; // Flag to indicate if a sensor is detected
+long startTime = 0;          // Variable to store the start time of the sensor detection
 
 bool sensorCheck()
 {
@@ -20,18 +21,40 @@ void sensorTask(void *pvParameters)
     // Loop
     while (true)
     {
-        if (sensorCheck()) // Check if both sensors are LOW
+        if (systemEnabled) // Check if the system is enabled
         {
-            sensorDetected = true; // Set the flag if both sensors are LOW
-            turnOnLeds();          // Call the function to turn on the LED
-            // Serial.println("Sensor detected!"); // Print message to Serial Monitor
+            if (sensorCheck()) // Check if both sensors are LOW
+            {
+                // safety check to prevent system from being enabled for more than 30 seconds
+                if (startTime == 0) // Check if startTime is not set
+                {
+                    startTime = millis(); // Set the start time
+                }
+                else if (millis() - startTime >= 60000) 
+                {
+                    startTime = 0;         // Reset the start time
+                    systemEnabled = false; // Disable the system
+                    Serial.println("System disabled due to 60 second safety turn off.");
+                }
+                sensorDetected = true; // Set the flag if both sensors are LOW
+                turnOnLeds();          // Call the function to turn on the LED
+                // Serial.println("Sensor detected!"); // Print message to Serial Monitor
+            }
+            if (!sensorCheck()) // Check if either sensor is HIGH
+            {
+                startTime = 0;          // Reset the start time
+                sensorDetected = false; // Reset the flag if either sensor is HIGH
+                turnOffLeds();          // Call the function to turn off the LED
+                // Serial.println("No sensor detected!"); // Print message to Serial Monitor
+            }
         }
-        if (!sensorCheck()) // Check if either sensor is HIGH
+        else
         {
-            sensorDetected = false; // Reset the flag if either sensor is HIGH
-            turnOffLeds();          // Call the function to turn off the LED
-            // Serial.println("No sensor detected!"); // Print message to Serial Monitor
+            sensorDetected = false;         // Reset the flag if the system is disabled
+            turnOffLeds();                  // Call the function to turn off the LED
+            vTaskDelay(pdMS_TO_TICKS(500)); 
         }
+
         vTaskDelay(pdMS_TO_TICKS(10)); // Delay for 1 second
     }
 }
